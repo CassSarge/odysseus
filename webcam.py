@@ -12,7 +12,7 @@ def open_webcam():
     print("Webcam opened, press 'q' to quit")
     return capture
 
-def get_current_webcam_frame():
+def get_current_webcam_frame(capture):
     ret, frame = capture.read()
     # If frame was read correctly, then ret will be True
     if not ret:
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     while True:
         # Get frame
-        frame = get_current_webcam_frame()
+        frame = get_current_webcam_frame(capture)
 
         # Display frame
         cv2.imshow('Webcam', frame)
