@@ -37,7 +37,7 @@ def draw_apriltag_boxes(results, img):
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         print("Tag family: {}".format(tagFamily))
     # show the output image after AprilTag detection
-    cv2.imshow("Image", img)
+    return img
 
 def test_apriltag_detection(args):
     
@@ -49,7 +49,9 @@ def test_apriltag_detection(args):
     results = detect_apriltag(img)
 
     # Draw boxes
-    draw_apriltag_boxes(results, img)
+    img = draw_apriltag_boxes(results, img)
+
+    cv2.imshow("Image", img)
 
     # Wait for user to press a key
     cv2.waitKey(0)
