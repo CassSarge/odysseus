@@ -2,36 +2,42 @@
 import cv2
 # import apriltag
 
-print("Opening webcam, please wait...")
-capture = cv2.VideoCapture(0)
-# Ensure that the webcam was opened correctly
-if not capture.isOpened():
-    raise IOError("Cannot open webcam")
+def open_webcam():
+    print("Opening webcam, please wait...")
+    capture = cv2.VideoCapture(0)
+    # Ensure that the webcam was opened correctly
+    if not capture.isOpened():
+        raise IOError("Cannot open webcam")
 
-print("Webcam opened, press 'q' to quit")
+    print("Webcam opened, press 'q' to quit")
+    return capture
 
-
-while True:
+def get_current_webcam_frame():
     ret, frame = capture.read()
     # If frame was read correctly, then ret will be True
     if not ret:
         print("Cannot receive frame")
         raise IOError("Webcam frame not received")
-
     # Perform some operation on the frame here
     # Resize the frame
     frame = cv2.resize(frame, None, fx = 0.9, fy = 0.9, interpolation = cv2.INTER_AREA)
-    # Convert the size to grey
-    grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    return frame
 
+if __name__ == "__main__":
+    
+    capture =  open_webcam()
 
-    # Display frame
-    cv2.imshow('Webcam', grey)
+    while True:
+        # Get frame
+        frame = get_current_webcam_frame()
 
-    # Check if 'q' was pressed
-    key = cv2.waitKey(1)
-    if key == ord('q'):
-        break
+        # Display frame
+        cv2.imshow('Webcam', frame)
 
-capture.release()
-cv2.destroyAllWindows()
+        # Check if 'q' was pressed
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            break
+
+    capture.release()
+    cv2.destroyAllWindows()
