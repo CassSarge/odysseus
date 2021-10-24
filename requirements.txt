@@ -1,1 +1,4 @@
+apriltag==0.0.16
+cmake==3.21.3
 numpy==1.21.3
+opencv-python==4.5.4.58
