@@ -1,5 +1,4 @@
-import webcam as wc
-import apriltag_detection as ap
+from src.camera import webcam as wc, apriltag_detection as ap
 import cv2
 
 if __name__ == "__main__":
