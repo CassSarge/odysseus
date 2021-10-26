@@ -3,15 +3,46 @@ import cv2
 import apriltag
 import argparse
 
-def detect_apriltag(img):
+def detect_apriltag(img, silent = False):
     # Image and convert it to grayscale
     grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    print("Looking for AprilTag/s from the 36h11 family...")
+    if silent is False:
+        print("Looking for AprilTag/s from the 36h11 family...")
     options = apriltag.DetectorOptions(families="tag36h11")
     detector = apriltag.Detector(options)
     results = detector.detect(grey_img)
-    print("{} AprilTags successfully detected".format(len(results)))
+    if silent is False:
+        print("{} AprilTags successfully detected".format(len(results)))
     return results
+
+def get_box_coords(results):
+    """Takes an apriltag detection result and returns the bounding box (corners and centre) for all visible apriltags
+
+    Returns a tuple of boxes (numpy array of lists containing 4 points), and centres, (numpy array of points)
+    """
+
+    boxes = []
+    centers = []
+    for res in results:
+        boxes.append(res.corners)
+        centers.append(res.center)
+        
+    # if (boxes == [] or centers == []):
+    #     print("No detection results found")
+
+    return (boxes, centers)
+    
+def get_detected_ids(results):
+    """Takes a detection result and returns the ids of the tags visible within the frame
+
+    Returns:
+        [list(int)]: list of the ids of the tags in detection order
+    """
+    ids = []
+    for res in results:
+        ids.append(res.tag_id)
+        
+    return ids
 
 def draw_apriltag_boxes(results, img):
     # Loop through all the results
@@ -19,11 +50,7 @@ def draw_apriltag_boxes(results, img):
 
         # extract the bounding box (x, y)-coordinates for the AprilTag
         # and convert each of the (x, y)-coordinate pairs to integers
-        (ptA, ptB, ptC, ptD) = r.corners
-        ptB = (int(ptB[0]), int(ptB[1]))
-        ptC = (int(ptC[0]), int(ptC[1]))
-        ptD = (int(ptD[0]), int(ptD[1]))
-        ptA = (int(ptA[0]), int(ptA[1]))
+        (ptA, ptB, ptC, ptD) = map(lambda x: (int(x[0]), int(x[1])), r.corners)
 
         # draw the bounding box of the AprilTag detection
         cv2.line(img, ptA, ptB, (0, 255, 0), 2)
