@@ -3,7 +3,7 @@ import cv2
 import glob
 
 
-def get_calibration_values(square_size, image_dir_path="calibration/images/*", internal_cols=8, internal_rows=6):
+def get_calibration_values(square_size_cm, image_dir_path="calibration/images/*", internal_cols=8, internal_rows=6):
 
     # Termination criteria for refinement
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -11,7 +11,7 @@ def get_calibration_values(square_size, image_dir_path="calibration/images/*", i
     # Prepare object points in global reference frame
     objp = np.zeros((internal_rows*internal_cols, 3), np.float32)
     objp[:, :2] = np.mgrid[0:internal_cols, 0:internal_rows].T.reshape(-1, 2)
-    objp *= square_size
+    objp *= square_size_cm
 
     # Arrays to store object points and image points from all the calibration images
     objpoints = [] # 3d points in real world space
@@ -56,4 +56,4 @@ def get_calibration_values(square_size, image_dir_path="calibration/images/*", i
 if __name__ == "__main__":
 
     # Must be running at src level, otherwise image directory path should be specified
-    retval, cameraMatrix, distCoeffs, rvecs, tvecs = get_calibration_values(1)
+    retval, cameraMatrix, distCoeffs, rvecs, tvecs = get_calibration_values(2.4)
