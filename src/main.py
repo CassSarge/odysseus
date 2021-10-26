@@ -17,7 +17,7 @@ from pose import localisation as loc
 if __name__ == "__main__":
 
     # Calibrate camera
-    _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values()
+    _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values(1)
 
     # Open webcam for image capture
     capture = wc.open_webcam()
