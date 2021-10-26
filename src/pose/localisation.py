@@ -1,44 +1,7 @@
 import math
 import numpy as np
 
-'''
-Pose struct format
-- pose
-    - linear: 3x1 numpy array [x; y; z]
-    - angular: 3x1 numpy array [roll; pitch; yaw]
-'''
-
 # Public Interface------------------------------------------------------------------------------------------------
-'''
-- Inputs:
-    - tag_pose_global_frame: pose of the tag in the global frame
-    - tag_pose_camera_frame: pose of the tag in the camera frame
-'''
-
-
-def global_pose(tag_pose_global_frame, tag_pose_camera_frame):
-    # IDK IF ANYTHING IN THIS FUNCTION IS LEGIT EEK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    # Find the camera pose in the tag frame
-    rotm_camera_to_tag = euler_zyx_to_rotm(tag_pose_camera_frame.euler_zyx)
-    rotm_tag_to_camera = rotm_camera_to_tag.transpose()
-
-    camera_pose_tag_frame.euler_zyx = rotm_to_euler_zyx(rotm_tag_to_camera)
-    camera_pose_tag_frame.pos = np.matmul(rotm_camera_to_tag,
-                                          -tag_pose_camera_frame.pos)  # relative position is negative
-
-    # Find the camera pose in the global frame
-    rotm_global_to_tag = euler_zyx_to_rotm(tag_pose_global_frame.euler_zyx)
-    rotm_tag_to_global = rotm_global_to_tag.transpose()
-    rotm_global_to_camera = np.matmul(rotm_global_to_tag, rotm_tag_to_camera)
-    rotm_camera_to_global = rotm_global_to_camera.transpose()
-
-    camera_pose_global_frame.euler_zyx = rotm_to_euler_zyx(rotm_global_to_camera)
-    camera_pose_global_frame.pos = tag_pose_global_frame.pos + np.matmul(rotm_tag_to_global, camera_pose_tag_frame.pos)
-
-    return camera_pose_global_frame
-
-
 '''
 Return 3D rotation matrix given ZYX Euler angles
 - Inputs:
