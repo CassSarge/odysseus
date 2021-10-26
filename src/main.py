@@ -1,17 +1,23 @@
 # Configure access to outer directories
 import sys, os
-sys.path.append(os.path.abspath(os.path.join('..', 'camera')))
-sys.path.append(os.path.abspath(os.path.join('..', 'pose')))
+dirs = ['calibration', 'camera', 'pose']
+for dirName in dirs:
+    sys.path.append(os.path.abspath(os.path.join('..', dirName)))
 
 # Import packages
 import cv2 
 
 # Import modules
+from calibration import parameters as param
 from camera import webcam as wc
 from camera import apriltag_detection as ap
 from pose import localisation as loc
 
+
 if __name__ == "__main__":
+
+    # Calibrate camera
+    _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values(2.4)
 
     # Open webcam for image capture
     capture = wc.open_webcam()
