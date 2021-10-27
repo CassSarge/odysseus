@@ -1,7 +1,10 @@
-from src.camera import webcam as wc, apriltag_detection as ap
+import webcam as wc, apriltag_detection as apd
 import cv2
 import argparse
 
+# Testing file for testing other files functions with a still image, feel free to add anything
+# Usage running from the project root folder would be
+# python src/camera/apriltag_static.py --image src/camera/images/example_img1.png
 if __name__ == "__main__":
 
     # For parsing command line arguments
@@ -10,19 +13,16 @@ if __name__ == "__main__":
         help = "Path to AprilTag image")
     args = vars(ap.parse_args())
 
-
     # Get frame
-    frame = v2.imread(args["image"])
+    frame = cv2.imread(args["image"])
 
     # Detect apriltags
-    results = ap.detect_apriltag(frame)
+    results = apd.detect_apriltag(frame)
 
     # Draw boxes
-    img = ap.draw_apriltag_boxes(results, frame)
+    img = apd.draw_apriltag_boxes(results, frame)
 
     cv2.imshow("Image", img)
 
-    # Check if 'q' was pressed
-    key = cv2.waitKey(1)
-    if key == ord('q'):
-        img = cv2.imread(args["image"])
+    # Wait for a key to be pressed
+    key = cv2.waitKey(0)
