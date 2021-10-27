@@ -19,12 +19,13 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
 
     # Construct numpy array of object points
     # TODO: currently hardcoded - will expand to lookup table
+    d = 144.0 # aprilTag side length (mm) (this can change)
     objectPoints = np.array([
                             (0.0 ,0.0 ,0.0 ),       # centre
-                            (0.0, -12.0, 12.0),     # top-left
-                            (0.0, -12.0, -12.0),    # bottom-left
-                            (0.0, 12.0, -12.0),     # bottom-right
-                            (0.0, 12.0, 12.0),      # top-right
+                            (0.0, -d/2, d/2),     # top-left
+                            (0.0, d/2, d/2),      # top-right
+                            (0.0, d/2, -d/2),     # bottom-right
+                            (0.0, -d/2, -d/2),    # bottom-left
                             ])
     
     position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)

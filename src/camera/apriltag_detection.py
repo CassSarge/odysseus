@@ -58,6 +58,12 @@ def draw_apriltag_boxes(results, img):
         cv2.line(img, ptC, ptD, (0, 255, 0), 2)
         cv2.line(img, ptD, ptA, (0, 255, 0), 2)
 
+        # colour code corners
+        cv2.circle(img, ptA, 5, (255, 0, 0), -1)        # blue
+        cv2.circle(img, ptB, 5, (255, 0, 255), -1)      # magenta
+        cv2.circle(img, ptC, 5, (0, 255, 255), -1)      # yellow
+        cv2.circle(img, ptD, 5, (255, 255, 255), -1)    # white
+
         # draw the center (x, y)-coordinates of the AprilTag
         (cX, cY) = (int(r.center[0]), int(r.center[1]))
         cv2.circle(img, (cX, cY), 5, (0, 0, 255), -1)
