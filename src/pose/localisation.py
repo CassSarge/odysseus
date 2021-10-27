@@ -1,7 +1,18 @@
+# Import packages
+import cv2
 import math
 import numpy as np
 
 # Public Interface------------------------------------------------------------------------------------------------
+def global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
+    _, rVec, tVec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs)
+    rotm_t = cv2.Rodrigues(rVec)[0]
+    rotm = np.matrix(rotm_t).T
+    position = -rotm * np.matrix(tVec)
+    orientation = rotm_to_euler_zyx(rotm)
+
+    return position, orientation
+
 '''
 Return 3D rotation matrix given ZYX Euler angles
 - Inputs:
@@ -9,8 +20,6 @@ Return 3D rotation matrix given ZYX Euler angles
 - Outputs:
     - rotm: 3x3 rotation matrix
 '''
-
-
 def euler_zyx_to_rotm(euler_zyx):
     yaw = euler_zyx.item(0)
     pitch = euler_zyx.item(1)
@@ -43,8 +52,6 @@ Return ZYX Euler angles given 3D rotation matrix
 - Outputs:
     - euler_zyx: numpy column vector [yaw; pitch; roll] (rad)
 '''
-
-
 def rotm_to_euler_zyx(rotm):
     if (rotm.item(2, 0) < 1):
         if (rotm.item(2, 0) > -1):

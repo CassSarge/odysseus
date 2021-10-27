@@ -6,6 +6,7 @@ for dirName in dirs:
 
 # Import packages
 import cv2 
+import numpy as np
 
 # Import modules
 from calibration import parameters as param
@@ -38,6 +39,28 @@ if __name__ == "__main__":
         # TODO: Get bounding box + center coordinates in image frame
 
         # TODO: Convert from image frame to world frame
+        #START test
+        objectPoints = np.array([
+                                (0.0, 0.0, 0.0),
+                                (0.0, 1.0, 0.0),
+                                (1.0, 0.0, 0.0),
+                                (1.0, 1.0, 0.0),
+                                ])      # test points
+
+        imagePoints = np.array([
+                                (0.0, 0.0),
+                                (0.0, 100.0),
+                                (100.0, 0.0),
+                                (100.0, 100.0),
+                                ])      # test points
+
+        position, orientation = loc.global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
+        print("position")
+        print(position)
+        print("orientation")
+        print(orientation)
+        break
+        #END test
 
         # Check if 'q' was pressed
         key = cv2.waitKey(1)
