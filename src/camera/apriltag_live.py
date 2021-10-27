@@ -1,4 +1,4 @@
-from src.camera import webcam as wc, apriltag_detection as ap
+import webcam as wc, apriltag_detection as apd
 import cv2
 
 if __name__ == "__main__":
@@ -9,10 +9,10 @@ if __name__ == "__main__":
         frame = wc.get_current_webcam_frame(capture)
 
         # Detect apriltags
-        results = ap.detect_apriltag(frame)
+        results = apd.detect_apriltag(frame)
 
         # Draw boxes
-        img = ap.draw_apriltag_boxes(results, frame)
+        img = apd.draw_apriltag_boxes(results, frame)
 
         cv2.imshow("Image", img)
 
