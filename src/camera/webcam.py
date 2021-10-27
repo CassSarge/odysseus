@@ -1,6 +1,5 @@
 # File for opening webcam
 import cv2
-# import apriltag
 
 def open_webcam():
     print("Opening webcam, please wait...")
@@ -19,8 +18,6 @@ def get_current_webcam_frame(capture):
         print("Cannot receive frame")
         raise IOError("Webcam frame not received")
     # Perform some operation on the frame here
-    # Resize the frame
-    frame = cv2.resize(frame, None, fx = 0.9, fy = 0.9, interpolation = cv2.INTER_AREA)
     return frame
 
 if __name__ == "__main__":
@@ -38,6 +35,13 @@ if __name__ == "__main__":
         key = cv2.waitKey(1)
         if key == ord('q'):
             break
+        if key == ord('s'):
+            result = cv2.imwrite(r'screenshot.jpg', frame)
+            if result == True:
+                print("File saved sucessfully")
+            else:
+                print("Error saving file")
+            pass
 
     capture.release()
     cv2.destroyAllWindows()
