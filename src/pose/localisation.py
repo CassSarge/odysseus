@@ -3,8 +3,35 @@ import cv2
 import math
 import numpy as np
 
+# Import modules
+from camera import apriltag_detection as ap
+
 # Public Interface------------------------------------------------------------------------------------------------
-def global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
+def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
+
+    # Construct a numpy array of image points
+    imagePoints = []
+    for tag in range(len(centers)):
+        imagePoints.append(centers[tag])
+        for corner in boxes[tag]:
+            imagePoints.append(corner)
+    imagePoints = np.array(imagePoints)
+
+    # Construct numpy array of object points
+    # TODO: currently hardcoded - will expand to lookup table
+    objectPoints = np.array([
+                            (0.0 ,0.0 ,0.0 ),       # centre
+                            (0.0, -12.0, 12.0),     # top-left
+                            (0.0, -12.0, -12.0),    # bottom-left
+                            (0.0, 12.0, -12.0),     # bottom-right
+                            (0.0, 12.0, 12.0),      # top-right
+                            ])
+    
+    position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
+
+    return position, orientation
+
+def points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
     _, rVec, tVec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs)
     rotm_t = cv2.Rodrigues(rVec)[0]
     rotm = np.matrix(rotm_t).T

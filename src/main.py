@@ -26,7 +26,6 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--image", required=False, 
         help = "Path to AprilTag image")
     args = vars(parser.parse_args())
-    print(type(args["image"]))
 
     # If no image flag provided, open webcam and do live localisation
     if isinstance(args["image"],type(None)):
@@ -41,41 +40,20 @@ if __name__ == "__main__":
             frame = wc.get_current_webcam_frame(capture)
 
             # Detect apriltags
-            results = ap.detect_apriltag(frame, silent=True)
+            results = ap.detect_apriltag(frame)
+            boxes, centers = ap.get_box_coords(results)
+
+            # Localise
+            ids = ap.get_detected_ids(results)
+            position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
+            print('position (xyz) (mm):')
+            print(position)
+            print('orientation (RPY) (rad):')
+            print(orientation)
 
             # Draw boxes
             img = ap.draw_apriltag_boxes(results, frame)
             cv2.imshow("Image", img)
-
-            # TODO: Get bounding box + center coordinates in image frame
-            (boxes, centers) = ap.get_box_coords(results)
-            tag_ids = ap.get_detected_ids(results)
-            
-            print(f"{boxes=}, {centers=}, {tag_ids=}")
-            
-
-            # TODO: Convert from image frame to world frame
-            #START test
-            objectPoints = np.array([
-                                    (0.0, 0.0, 0.0),
-                                    (0.0, 1.0, 0.0),
-                                    (1.0, 0.0, 0.0),
-                                    (1.0, 1.0, 0.0),
-                                    ])      # test points
-
-            imagePoints = np.array([
-                                    (0.0, 0.0),
-                                    (0.0, 100.0),
-                                    (100.0, 0.0),
-                                    (100.0, 100.0),
-                                    ])      # test points
-
-            position, orientation = loc.global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
-            print("position")
-            print(position)
-            print("orientation")
-            print(orientation)
-            #END test
 
             # Check if 'q' was pressed
             key = cv2.waitKey(1)
@@ -92,27 +70,9 @@ if __name__ == "__main__":
         results = ap.detect_apriltag(frame)
         boxes, centers = ap.get_box_coords(results)
 
-        # Construct a numpy array of image points
-        imagePoints = []
-        for tag in range(len(centers)):
-            imagePoints.append(centers[tag])
-            for corner in boxes[tag]:
-                imagePoints.append(corner)
-        imagePoints = np.array(imagePoints)
-
-        # Construct numpy array of object points
-        # NB: currently hardcoded - will expand to lookup table
+        # Localise
         ids = ap.get_detected_ids(results)
-        objectPoints = np.array([
-                                (0.0 ,0.0 ,0.0 ),       # centre
-                                (0.0, -12.0, 12.0),     # top-left
-                                (0.0, -12.0, -12.0),    # bottom-left
-                                (0.0, 12.0, -12.0),     # bottom-right
-                                (0.0, 12.0, 12.0),      # top-right
-                                ])
-        
-        position, orientation = loc.global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
-
+        position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
         print('position (xyz) (mm):')
         print(position)
         print('orientation (RPY) (rad):')
