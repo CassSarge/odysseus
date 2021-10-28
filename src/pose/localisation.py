@@ -107,6 +107,20 @@ def rotm_to_euler_zyx(rotm):
     return euler_zyx
 
 
+def parse_landmark_file(filename):
+    
+    with open(filename) as f:
+        side_len = int(f.readline().strip())
+        (x,y,z) = map(int, f.readline().strip().split(","))
+        (roll, pitch, yaw) = map(int, f.readline().strip().split(","))
+    
+    print(f"{side_len=}, {x=}, {y=}, {z=}, {roll=}, {pitch=}, {yaw=}")
+
+    pose = (x, y, z)
+    orientation = (roll, pitch, yaw)
+    
+    return (pose, orientation) 
+
 # Main------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
