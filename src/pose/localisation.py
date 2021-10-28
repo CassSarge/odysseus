@@ -11,10 +11,20 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
 
     # Construct a numpy array of image points
     imagePoints = []
+    objectPoints = []
     for tag in range(len(centers)):
         imagePoints.append(centers[tag])
         for corner in boxes[tag]:
             imagePoints.append(corner)
+            
+        altas_name = f"pose/atlas/{ids[tag]}.lmk"
+        (side_len, pose, orientation) = parse_landmark_file(atlas_name)
+        
+        # nate shit here
+        objectPoints.extend()
+        
+
+        
     imagePoints = np.array(imagePoints)
 
     # Construct numpy array of object points
@@ -27,6 +37,8 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
                             (0.0, d/2, -d/2),     # bottom-right
                             (0.0, -d/2, -d/2),    # bottom-left
                             ])
+                            
+                            
     
     position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
 
@@ -119,7 +131,7 @@ def parse_landmark_file(filename):
     pose = (x, y, z)
     orientation = (roll, pitch, yaw)
     
-    return (pose, orientation) 
+    return (side_len, pose, orientation) 
 
 # Main------------------------------------------------------------------------------------------------------------
 
