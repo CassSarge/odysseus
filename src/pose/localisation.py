@@ -17,29 +17,14 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
         for corner in boxes[tag]:
             imagePoints.append(corner)
             
-        altas_name = f"pose/atlas/{ids[tag]}.lmk"
+        atlas_name = f"pose/atlas/{ids[tag]}.lmk"
         (side_len, pose, orientation) = parse_landmark_file(atlas_name)
         
-        # nate shit here
-        objectPoints.extend()
-        
-
+        objectPoints.extend(tag_pose_to_object_points(pose, orientation, side_len))
         
     imagePoints = np.array(imagePoints)
-
-    # Construct numpy array of object points
-    # TODO: currently hardcoded - will expand to lookup table
-    d = 144.0 # aprilTag side length (mm) (this can change)
-    objectPoints = np.array([
-                            (0.0 ,0.0 ,0.0 ),       # centre
-                            (0.0, -d/2, d/2),     # top-left
-                            (0.0, d/2, d/2),      # top-right
-                            (0.0, d/2, -d/2),     # bottom-right
-                            (0.0, -d/2, -d/2),    # bottom-left
-                            ])
+    objectPoints = np.array(objectPoints)
                             
-                            
-    
     position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
 
     return position, orientation
@@ -53,17 +38,39 @@ def points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
 
     return position, orientation
 
+def tag_pose_to_object_points(pose, orientation, side_length):
+
+    center = np.array([pose])
+    rotm_global_to_tag = euler_zyx_to_rotm(np.array([orientation]))
+    rotm_tag_to_global = rotm_global_to_tag.T
+
+    corner_top_left_tag_frame = np.array([0, side_length/2, side_length/2]).T
+    corner_top_right_tag_frame = np.array([0, -side_length/2, side_length/2]).T
+    corner_bottom_right_tag_frame = np.array([0, -side_length/2, -side_length/2]).T
+    corner_bottom_left_tag_frame = np.array([0, side_length/2, -side_length/2]).T
+
+    corner_top_left_global_frame = np.matmul(rotm_tag_to_global, corner_top_left_tag_frame)
+    corner_top_right_global_frame = np.matmul(rotm_tag_to_global, corner_top_right_tag_frame)
+    corner_bottom_right_global_frame = np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame)
+    corner_bottom_left_global_frame = np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame)
+
+    ls = [corner_top_left_global_frame, corner_top_right_global_frame, corner_bottom_right_global_frame, corner_bottom_left_global_frame]
+    map(lambda x: x.tolist, ls)
+    
+    return ls
+
+
 '''
 Return 3D rotation matrix given ZYX Euler angles
 - Inputs:
-    - euler_zyx: numpy column vector [yaw; pitch; roll] (rad)
+    - euler_zyx: numpy column vector [roll; pitch; yaw] (rad)
 - Outputs:
     - rotm: 3x3 rotation matrix
 '''
 def euler_zyx_to_rotm(euler_zyx):
-    yaw = euler_zyx.item(0)
+    roll = euler_zyx.item(0)
     pitch = euler_zyx.item(1)
-    roll = euler_zyx.item(2)
+    yaw = euler_zyx.item(2)
 
     Rz_yaw = np.array([
         [np.cos(yaw), -np.sin(yaw), 0],
@@ -114,7 +121,7 @@ def rotm_to_euler_zyx(rotm):
         yaw = np.arctan(-np.item(1, 2), np.item(1, 1))
         roll = 0
 
-    euler_zyx = np.array([yaw, pitch, roll]).transpose()
+    euler_zyx = np.array([roll, pitch, yaw]).transpose()
 
     return euler_zyx
 

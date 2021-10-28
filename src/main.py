@@ -25,103 +25,101 @@ def update_line(hl, new_data):
 	plt.draw()
 
 if __name__ == "__main__":
-
-    loc.parse_landmark_file("pose/atlas/1.lmk")
     
-    # # Calibrate camera
-    # _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values(2.1)
+    # Calibrate camera
+    _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values(2.1)
 
-    # # For parsing command line arguments
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("-i", "--image", required=False, 
-    #     help = "Path to AprilTag image")
-    # args = vars(parser.parse_args())
+    # For parsing command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--image", required=False, 
+        help = "Path to AprilTag image")
+    args = vars(parser.parse_args())
 
-    # # If no image flag provided, open webcam and do live localisation
-    # if isinstance(args["image"],type(None)):
+    # If no image flag provided, open webcam and do live localisation
+    if isinstance(args["image"],type(None)):
         
-    #     # Open webcam for image capture
-    #     capture = wc.open_webcam()
+        # Open webcam for image capture
+        capture = wc.open_webcam()
 
-    #     # Initialise plot handler
-    #     fig = plt.figure()
-    #     ax = fig.add_subplot(111,projection="3d")
-    #     ax.set_title("Camera position in global frame")
-    #     ax.set_xlabel("x (mm)")
-    #     ax.set_ylabel("y (mm)")
-    #     ax.set_zlabel("z (mm)")
-    #     ax.set_xlim3d(-1000, 1000)
-    #     ax.set_ylim3d(-1000, 1000)
-    #     ax.set_zlim3d(-1000, 1000)
-    #     xs = np.array([])
-    #     ys = np.array([])
-    #     hl, = plt.plot(xs,ys)
+        # Initialise plot handler
+        fig = plt.figure()
+        ax = fig.add_subplot(111,projection="3d")
+        ax.set_title("Camera position in global frame")
+        ax.set_xlabel("x (mm)")
+        ax.set_ylabel("y (mm)")
+        ax.set_zlabel("z (mm)")
+        ax.set_xlim3d(-1000, 1000)
+        ax.set_ylim3d(-1000, 1000)
+        ax.set_zlim3d(-1000, 1000)
+        xs = np.array([])
+        ys = np.array([])
+        hl, = plt.plot(xs,ys)
 
-    #     # Run continuously 
-    #     while True:
+        # Run continuously 
+        while True:
 
-    #         # Get frame
-    #         frame = wc.get_current_webcam_frame(capture)
+            # Get frame
+            frame = wc.get_current_webcam_frame(capture)
 
-    #         # Detect apriltags
-    #         results = ap.detect_apriltag(frame)
-    #         boxes, centers = ap.get_box_coords(results)
-    #         ids = ap.get_detected_ids(results)
+            # Detect apriltags
+            results = ap.detect_apriltag(frame)
+            boxes, centers = ap.get_box_coords(results)
+            ids = ap.get_detected_ids(results)
 
-    #         # Localise if at least one aprilTag detected
-    #         if (len(centers) >= 1):
-    #             position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-    #             print('position (xyz) (mm):')
-    #             print(position)
-    #             print('orientation (RPY) (rad):')
-    #             print(orientation)
+            # Localise if at least one aprilTag detected
+            if (len(centers) >= 1):
+                position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
+                print('position (xyz) (mm):')
+                print(position)
+                print('orientation (RPY) (rad):')
+                print(orientation)
 
-    #             # Plot points
-    #             update_line(hl, np.asarray(position))
-    #             plt.show(block=False)
-    #             plt.pause(0.1)
+                # Plot points
+                update_line(hl, np.asarray(position))
+                plt.show(block=False)
+                plt.pause(0.1)
 
 
-    #         # Draw boxes
-    #         img = ap.draw_apriltag_boxes(results, frame)
-    #         cv2.imshow("Image", img)
+            # Draw boxes
+            img = ap.draw_apriltag_boxes(results, frame)
+            cv2.imshow("Image", img)
 
-    #         # Check if 'q' was pressed
-    #         key = cv2.waitKey(1)
-    #         if key == ord('q'):
-    #             capture.release()
-    #             break
+            # Check if 'q' was pressed
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                capture.release()
+                break
 
-    #     plt.show()
+        plt.show()
 
-    # # Else if an image is provided, run localisation on it     
-    # else:
+    # Else if an image is provided, run localisation on it     
+    else:
 
-    #     # Get frame
-    #     frame = cv2.imread(args["image"])
+        # Get frame
+        frame = cv2.imread(args["image"])
 
-    #     # Detect apriltags
-    #     results = ap.detect_apriltag(frame)
-    #     boxes, centers = ap.get_box_coords(results)
+        # Detect apriltags
+        results = ap.detect_apriltag(frame)
+        boxes, centers = ap.get_box_coords(results)
 
-    #     # Localise
-    #     ids = ap.get_detected_ids(results)
-    #     position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-    #     print('position (xyz) (mm):')
-    #     print(position)
-    #     print('orientation (RPY) (rad):')
-    #     print(orientation)
+        # Localise
+        ids = ap.get_detected_ids(results)
+        position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
+        print('position (xyz) (mm):')
+        print(position)
+        print('orientation (RPY) (rad):')
+        print(orientation)
 
-    #     # Draw boxes
-    #     img = ap.draw_apriltag_boxes(results, frame)
-    #     cv2.imshow("Image", img)
+        # Draw boxes
+        img = ap.draw_apriltag_boxes(results, frame)
+        cv2.imshow("Image", img)
 
-    #     # Check if 'q' was pressed
-    #     while True:
-    #         key = cv2.waitKey(1)
-    #         if key == ord('q'):
-    #             break
+        # Check if 'q' was pressed
+        while True:
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                break
 
-    # cv2.destroyAllWindows()
-    # while True:
-    #     pass
+    cv2.destroyAllWindows()
+    while True:
+        pass
