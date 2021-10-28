@@ -22,6 +22,7 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
         
         objectPoints.extend(tag_pose_to_object_points(pose, orientation, side_len))
         
+    print(f"{objectPoints=}")
     imagePoints = np.array(imagePoints)
     objectPoints = np.array(objectPoints)
                             
@@ -133,8 +134,6 @@ def parse_landmark_file(filename):
         (x,y,z) = map(int, f.readline().strip().split(","))
         (roll, pitch, yaw) = map(int, f.readline().strip().split(","))
     
-    print(f"{side_len=}, {x=}, {y=}, {z=}, {roll=}, {pitch=}, {yaw=}")
-
     pose = (x, y, z)
     orientation = (roll, pitch, yaw)
     
