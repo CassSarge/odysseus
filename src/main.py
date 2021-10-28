@@ -48,9 +48,9 @@ if __name__ == "__main__":
         ax.set_xlabel("x (mm)")
         ax.set_ylabel("y (mm)")
         ax.set_zlabel("z (mm)")
-        ax.set_xlim3d(-1000, 1000)
-        ax.set_ylim3d(-1000, 1000)
-        ax.set_zlim3d(-1000, 1000)
+        ax.set_xlim3d(-100, 3000)
+        ax.set_ylim3d(-100, 3000)
+        ax.set_zlim3d(-100, 3000)
         xs = np.array([])
         ys = np.array([])
         hl, = plt.plot(xs,ys)
@@ -62,17 +62,17 @@ if __name__ == "__main__":
             frame = wc.get_current_webcam_frame(capture)
 
             # Detect apriltags
-            results = ap.detect_apriltag(frame)
+            results = ap.detect_apriltag(frame, silent=True)
             boxes, centers = ap.get_box_coords(results)
             ids = ap.get_detected_ids(results)
 
             # Localise if at least one aprilTag detected
             if (len(centers) >= 1):
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-                print('position (xyz) (mm):')
-                print(position)
-                print('orientation (RPY) (rad):')
-                print(orientation)
+                #print('position (xyz) (mm):')
+                #print(position)
+                #print('orientation (RPY) (rad):')
+                #print(orientation)
 
                 # Plot points
                 update_line(hl, np.asarray(position))
@@ -105,10 +105,10 @@ if __name__ == "__main__":
         # Localise
         ids = ap.get_detected_ids(results)
         position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-        print('position (xyz) (mm):')
-        print(position)
-        print('orientation (RPY) (rad):')
-        print(orientation)
+        #print('position (xyz) (mm):')
+        #print(position)
+        #print('orientation (RPY) (rad):')
+        #print(orientation)
 
         # Draw boxes
         img = ap.draw_apriltag_boxes(results, frame)

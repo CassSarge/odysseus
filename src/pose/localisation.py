@@ -22,10 +22,10 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
         
         objectPoints.extend(tag_pose_to_object_points(pose, orientation, side_len))
         
-    print(f"{objectPoints=}")
     imagePoints = np.array(imagePoints)
     objectPoints = np.array(objectPoints)
-                            
+    print(f"{objectPoints=}")
+                  
     position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
 
     return position, orientation
@@ -41,23 +41,24 @@ def points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
 
 def tag_pose_to_object_points(pose, orientation, side_length):
 
-    center = np.array([pose])
-    rotm_global_to_tag = euler_zyx_to_rotm(np.array([orientation]))
-    rotm_tag_to_global = rotm_global_to_tag.T
+    center = np.array(pose)
+    rotm_tag_to_global = euler_zyx_to_rotm(np.array(orientation))
 
     corner_top_left_tag_frame = np.array([0, side_length/2, side_length/2]).T
     corner_top_right_tag_frame = np.array([0, -side_length/2, side_length/2]).T
     corner_bottom_right_tag_frame = np.array([0, -side_length/2, -side_length/2]).T
     corner_bottom_left_tag_frame = np.array([0, side_length/2, -side_length/2]).T
 
-    corner_top_left_global_frame = np.matmul(rotm_tag_to_global, corner_top_left_tag_frame)
-    corner_top_right_global_frame = np.matmul(rotm_tag_to_global, corner_top_right_tag_frame)
-    corner_bottom_right_global_frame = np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame)
-    corner_bottom_left_global_frame = np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame)
-
-    ls = [corner_top_left_global_frame, corner_top_right_global_frame, corner_bottom_right_global_frame, corner_bottom_left_global_frame]
-    map(lambda x: x.tolist, ls)
-    
+    corner_top_left_global_frame = (np.matmul(rotm_tag_to_global, corner_top_left_tag_frame)+center).tolist()
+    corner_top_right_global_frame = (np.matmul(rotm_tag_to_global, corner_top_right_tag_frame)+center).tolist()
+    corner_bottom_right_global_frame = (np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame)+center).tolist()
+    corner_bottom_left_global_frame = (np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame)+center).tolist()
+    ls = [center.tolist(), corner_top_left_global_frame, corner_top_right_global_frame, corner_bottom_right_global_frame, corner_bottom_left_global_frame]
+    print(f"{ls=}")
+    print(np.matmul(rotm_tag_to_global, corner_top_left_tag_frame))
+    print(np.matmul(rotm_tag_to_global, corner_top_right_tag_frame))
+    print(np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame))
+    print(np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame))
     return ls
 
 
@@ -88,7 +89,7 @@ def euler_zyx_to_rotm(euler_zyx):
         [0, np.cos(roll), -np.sin(roll)],
         [0, np.sin(roll), np.cos(roll)]])
 
-    rotm = np.dot(Rz_yaw, np.dot(Ry_pitch, Rx_roll))
+    rotm = np.matmul(Rz_yaw, np.matmul(Ry_pitch, Rx_roll))
 
     return rotm
 
@@ -132,7 +133,8 @@ def parse_landmark_file(filename):
     with open(filename) as f:
         side_len = int(f.readline().strip())
         (x,y,z) = map(int, f.readline().strip().split(","))
-        (roll, pitch, yaw) = map(int, f.readline().strip().split(","))
+        angles = list(map(int, f.readline().strip().split(",")))
+        (roll, pitch, yaw) = map(math.radians, angles)
     
     pose = (x, y, z)
     orientation = (roll, pitch, yaw)
