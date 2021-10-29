@@ -3,7 +3,7 @@ import cv2
 import glob
 
 
-def get_calibration_values(square_size_cm, image_dir_path="calibration/images/*", internal_cols=8, internal_rows=6):
+def get_calibration_values(square_size_cm, image_dir_path="calibration/images/*.jpg", internal_cols=8, internal_rows=6):
 
     # Termination criteria for refinement
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -51,7 +51,16 @@ def get_calibration_values(square_size_cm, image_dir_path="calibration/images/*"
     print(f'Translation vector:\n{tvecs}')
 
     return retval, cameraMatrix, distCoeffs, rvecs, tvecs
-
+    
+def write_parameter_files(filename, cam, dist):
+    print(cam.dtype)
+    np.save(filename+"_cam.npy", cam)
+    np.save(filename+"_dist.npy", dist)
+    
+def read_values_from_file(filename):
+    camera_Matrix = np.load(filename+"_cam.npy")
+    distCoeffs = np.load(filename+"_dist.npy")
+    return (camera_Matrix, distCoeffs)
 
 if __name__ == "__main__":
 
