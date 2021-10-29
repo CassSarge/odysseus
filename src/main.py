@@ -8,21 +8,13 @@ for dirName in dirs:
 import cv2 
 import numpy as np
 import argparse
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import pyplot as plt
 
 # Import modules
 from calibration import parameters as param
 from camera import webcam as wc
 from camera import apriltag_detection as ap
 from pose import localisation as loc
-
-def update_line(hl, new_data):
-	xdata, ydata, zdata = hl._verts3d
-	hl.set_xdata(np.append(xdata, new_data[0]))
-	hl.set_ydata(np.append(ydata, new_data[1]))
-	hl.set_3d_properties(np.append(zdata, new_data[2]))
-	plt.draw()
+from pose import plot
 
 if __name__ == "__main__":
     
@@ -41,19 +33,8 @@ if __name__ == "__main__":
         # Open webcam for image capture
         capture = wc.open_webcam()
 
-        # Initialise plot handler
-        fig = plt.figure()
-        ax = fig.add_subplot(111,projection="3d")
-        ax.set_title("Camera position in global frame")
-        ax.set_xlabel("x (mm)")
-        ax.set_ylabel("y (mm)")
-        ax.set_zlabel("z (mm)")
-        ax.set_xlim3d(-100, 3000)
-        ax.set_ylim3d(-100, 3000)
-        ax.set_zlim3d(-100, 3000)
-        xs = np.array([])
-        ys = np.array([])
-        hl, = plt.plot(xs,ys)
+        # Initialise plot handle
+        hl = plot.init_position_figure()
 
         # Run continuously 
         while True:
@@ -75,10 +56,7 @@ if __name__ == "__main__":
                 #print(orientation)
 
                 # Plot points
-                update_line(hl, np.asarray(position))
-                plt.show(block=False)
-                plt.pause(0.1)
-
+                plot.update_line(hl, np.asarray(position))
 
             # Draw boxes
             img = ap.draw_apriltag_boxes(results, frame)
@@ -87,10 +65,7 @@ if __name__ == "__main__":
             # Check if 'q' was pressed
             key = cv2.waitKey(1)
             if key == ord('q'):
-                capture.release()
                 break
-
-        plt.show()
 
     # Else if an image is provided, run localisation on it     
     else:
@@ -120,6 +95,5 @@ if __name__ == "__main__":
             if key == ord('q'):
                 break
 
+    capture.release()
     cv2.destroyAllWindows()
-    while True:
-        pass
