@@ -15,6 +15,7 @@ from camera import webcam as wc
 from camera import apriltag_detection as ap
 from pose import localisation as loc
 from pose import plot
+from visualisation import camera_pose_visualizer as cpv
 
 if __name__ == "__main__":
     
@@ -41,7 +42,10 @@ if __name__ == "__main__":
 
     else:
         (cameraMatrix, distCoeffs) = param.read_values_from_file(user_calibration_file)
-        print(f"{cameraMatrix=}, {distCoeffs=}")
+        #print(f"{cameraMatrix=}, {distCoeffs=}")
+
+    # Set up camera pose visulariser
+    visualizer = cpv.CameraPoseVisualizer([-100, 3000], [-100, 3000], [-100, 3000])
 
     # If no image flag provided, open webcam and do live localisation
     if isinstance(args["image"],type(None)):
@@ -66,10 +70,17 @@ if __name__ == "__main__":
             # Localise if at least one aprilTag detected
             if (len(centers) >= 1):
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-                #print('position (xyz) (mm):')
-                #print(position)
-                #print('orientation (RPY) (rad):')
-                #print(orientation)
+
+                # Rotation matrix
+                R = loc.euler_zyx_to_rotm(orientation)
+                # Translation vector
+                t = position
+                temp_matrix = np.hstack((R,t))
+
+                # Extrinsic matrix 
+                extrinsic_matrix = np.vstack((temp_matrix,np.array([0,0,0,1])))
+                visualizer.extrinsic2pyramid(extrinsic_matrix.A, 'c', 400)
+                visualizer.show()
 
                 # Plot points
                 plot.update_line(hl, np.asarray(position))
@@ -109,7 +120,7 @@ if __name__ == "__main__":
         while True:
             key = cv2.waitKey(1)
             if key == ord('q'):
-                break
+                quit()
 
     capture.release()
     cv2.destroyAllWindows()
