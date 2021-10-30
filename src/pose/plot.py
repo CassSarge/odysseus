@@ -38,6 +38,14 @@ def init_position_figure():
     plt.ion()
 
     return hl
+'''
+quits the whole program is 'q' is pressed
+- inputs:
+    - event: event.key is the char for the keypress
+'''
+def on_press(event):
+    if event.key == 'q':
+        quit()
 
 if __name__ == "__main__":
 

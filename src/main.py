@@ -81,7 +81,7 @@ if __name__ == "__main__":
             # Check if 'q' was pressed
             key = cv2.waitKey(1)
             if key == ord('q'):
-                break
+                quit()
 
     # Else if an image is provided, run localisation on it     
     else:
