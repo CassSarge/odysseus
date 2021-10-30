@@ -72,7 +72,7 @@ def draw_apriltag_boxes(results, img):
         tagFamily = r.tag_family.decode("utf-8")
         cv2.putText(img, tagFamily, (ptA[0], ptA[1] - 15),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        print("Tag family: {}".format(tagFamily))
+        #print("Tag family: {}".format(tagFamily))
 
     # return the output image after AprilTag detection
     return img
