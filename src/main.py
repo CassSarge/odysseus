@@ -8,6 +8,7 @@ for dirName in dirs:
 import cv2 
 import numpy as np
 import argparse
+import shutil
 
 # Import modules
 from calibration import parameters as param
@@ -19,6 +20,17 @@ from visualisation import camera_pose_visualizer as cpv
 
 if __name__ == "__main__":
     
+    # Clear atlas
+    atlas_folder = './pose/atlas'
+    for filename in os.listdir(atlas_folder):
+        file_path = os.path.join(atlas_folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
 
     # For parsing command line arguments
     parser = argparse.ArgumentParser()
@@ -70,6 +82,8 @@ if __name__ == "__main__":
             # Localise if at least one aprilTag detected
             if (len(centers) >= 1):
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
+                # print(f"{position=}")
+                # print(f"{orientation=}")
 
                 # Rotation matrix
                 R = loc.euler_zyx_to_rotm(orientation)

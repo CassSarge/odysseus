@@ -15,7 +15,7 @@ def update_line(hl, new_data):
     hl.set_ydata(np.append(ydata, new_data[1]))
     hl.set_3d_properties(np.append(zdata, new_data[2]))
     plt.draw()
-    plt.pause(0.01)
+    plt.pause(0.04)
 
 '''
 returns the handle to a 3D position line plot
