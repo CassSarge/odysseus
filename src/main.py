@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import argparse
 import time
+import math
 from operator import sub
 
 # Import modules
@@ -29,6 +30,12 @@ def subtract_tuple(tup1, tup2):
 
 def multiply_tuple(tup, scalar):
     return tuple([scalar*x for x in tup])
+
+def rpy_to_pyramid(rpy):
+    pyramid = rpy
+    pyramid[1] -= math.pi/2.0
+    pyramid[2] = -pyramid[2] + math.pi
+    return pyramid
 
 # Main
 if __name__ == "__main__":
@@ -90,18 +97,9 @@ if __name__ == "__main__":
 
             # Localise if at least one aprilTag detected
             if (len(centers) >= 1):
+
+                print("Using AprilTags")
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-
-                # Rotation matrix
-                R = loc.euler_zyx_to_rotm(orientation)
-                # Translation vector
-                t = position
-                temp_matrix = np.hstack((R,t))
-
-                # Extrinsic matrix 
-                extrinsic_matrix = np.vstack((temp_matrix,np.array([0,0,0,1])))
-                visualizer.extrinsic2pyramid(extrinsic_matrix.A, 'c', 400)
-                visualizer.show()
 
                 # Update global variable for position according to imu
                 imu_position = multiply_tuple(tracking_cam.receive_data(["POSITION"], turn_off=False)[0][0], 1000)
@@ -111,12 +109,26 @@ if __name__ == "__main__":
 
             # Otherwise, deadreckon using IMU
             else:
+                print("Using IMU")
                 imu_position = multiply_tuple(tracking_cam.receive_data(["POSITION"], turn_off=False)[0][0], 1000)
                 position = subtract_tuple(imu_position, offset)
                 orientation = tracking_cam.pose_to_rpy()
 
             # Plot points
             plot.update_line(hl, np.asarray(position))
+
+            # Rotation matrix
+            pyramid_orientation = rpy_to_pyramid(np.array(orientation))
+            R = loc.euler_zyx_to_rotm(pyramid_orientation)
+
+            # Translation vector
+            t = (np.array([position]).T).reshape((3,1))
+            temp_matrix = np.hstack((R,t))
+
+            # Extrinsic matrix 
+            extrinsic_matrix = np.vstack((temp_matrix, np.array([0,0,0,1])))
+            visualizer.extrinsic2pyramid(extrinsic_matrix, 'c', 400)
+            visualizer.show()
 
             # Draw boxes
             img = ap.draw_apriltag_boxes(results, frame)

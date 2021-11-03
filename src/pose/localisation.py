@@ -33,8 +33,8 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
 def points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
     _, rVec, tVec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs)
     rotm_t = cv2.Rodrigues(rVec)[0]
-    rotm = np.matrix(rotm_t).T
-    position = -rotm * np.matrix(tVec)
+    rotm = np.array(rotm_t).T
+    position = np.matmul(-rotm,np.array(tVec))
     orientation = rotm_to_euler_zyx(rotm)
 
     return position, orientation
