@@ -1,6 +1,6 @@
 # Configure access to outer directories
 import sys, os
-dirs = ['calibration', 'camera', 'pose']
+dirs = ['calibration', 'camera', 'pose', 'imu']
 for dirName in dirs:
     sys.path.append(os.path.abspath(os.path.join('..', dirName)))
 
@@ -8,6 +8,8 @@ for dirName in dirs:
 import cv2 
 import numpy as np
 import argparse
+import time
+from operator import sub
 
 # Import modules
 from calibration import parameters as param
@@ -15,11 +17,23 @@ from camera import webcam as wc
 from camera import apriltag_detection as ap
 from pose import localisation as loc
 from pose import plot
+from imu import imu_tracking as tc
 
 # Global variables
 global position, offset
 
+# Helper functions
+def subtract_tuple(tup1, tup2):
+    return tuple(map(sub, tup1, tup2))
+
+def multiply_tuple(tup, scalar):
+    return tuple([scalar*x for x in tup])
+
+# Main
 if __name__ == "__main__":
+
+    global offset
+    offset = (0, 0, 0)
     
     # For parsing command line arguments
     parser = argparse.ArgumentParser()
@@ -43,13 +57,13 @@ if __name__ == "__main__":
 
     else:
         (cameraMatrix, distCoeffs) = param.read_values_from_file(user_calibration_file)
-        print(f"{cameraMatrix=}, {distCoeffs=}")
+        # print(f"{cameraMatrix=}, {distCoeffs=}")
 
     # If no image flag provided, open webcam and do live localisation
     if isinstance(args["image"],type(None)):
         
         # Start tracking camera
-        tracking_cam = TrackingCam()
+        tracking_cam = tc.TrackingCam()
         tracking_cam.start_stream()
         time.sleep(2)   # This sleep is required for receiving data
         
@@ -73,19 +87,18 @@ if __name__ == "__main__":
             # Localise if at least one aprilTag detected
             if (len(centers) >= 1):
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-                #print('position (xyz) (mm):')
-                #print(position)
-                #print('orientation (RPY) (rad):')
-                #print(orientation)
 
                 # Update global variable for position according to imu
-                imu_position = tracking_cam.get_position()
+                imu_position = multiply_tuple(tracking_cam.receive_data(["POSITION"], turn_off=False)[0][0], 1000)
+
                 # Find the offset between the last known Apriltag-deduced position and the imu_position
-                offset = imu_position - position
+                offset = subtract_tuple(imu_position, position)
 
             # Otherwise, deadreckon using IMU
             else:
-                position = tracking_cam.get_position() - offset
+                imu_position = multiply_tuple(tracking_cam.receive_data(["POSITION"], turn_off=False)[0][0], 1000)
+                position = subtract_tuple(imu_position, offset)
+                orientation = tracking_cam.pose_to_rpy()
 
             # Plot points
             plot.update_line(hl, np.asarray(position))
@@ -112,10 +125,6 @@ if __name__ == "__main__":
         # Localise
         ids = ap.get_detected_ids(results)
         position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
-        #print('position (xyz) (mm):')
-        #print(position)
-        #print('orientation (RPY) (rad):')
-        #print(orientation)
 
         # Draw boxes
         img = ap.draw_apriltag_boxes(results, frame)

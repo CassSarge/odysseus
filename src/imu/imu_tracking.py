@@ -78,9 +78,9 @@ class TrackingCam:
             else:
                 return data_returned
         
-    def pose_to_ypr(self):
+    def pose_to_rpy(self, isDegrees=False):
         """
-        Converts pose to yaw, pitch and roll
+        Converts pose to roll, pitch and yaw
         Use receive_data before this function to update the pose
 
         """
@@ -90,14 +90,18 @@ class TrackingCam:
             y = self.data.rotation.x
             z = -self.data.rotation.y
 
-            yaw   =  math.atan2(2.0 * (w*z + x*y), w*w + x*x - y*y - z*z) * 180.0 / math.pi
-            pitch =  -math.asin(2.0 * (x*z - w*y)) * 180.0 / math.pi
-            roll  =  math.atan2(2.0 * (w*x + y*z), w*w - x*x - y*y + z*z) * 180.0 / math.pi
+            yaw   =  math.atan2(2.0 * (w*z + x*y), w*w + x*x - y*y - z*z)
+            pitch =  -math.asin(2.0 * (x*z - w*y))
+            roll  =  math.atan2(2.0 * (w*x + y*z), w*w - x*x - y*y + z*z)
+            rpy = (roll, pitch, yaw)
+
+            if isDegrees:
+                rpy = tuple(map(lambda x: x*180.0/math.pi, rpy))
 
         except:
             print("Could not convert pose to Euler angles")
             return None
-        return yaw, pitch, roll    
+        return rpy  
 
     def get_position(self):
         """
@@ -106,7 +110,7 @@ class TrackingCam:
         :rtype: int, int, int
 
         """
-        position = self.data.translation.x, self.data.translation.y, self.data.translation.z
+        position = -self.data.translation.x, self.data.translation.z, self.data.translation.y
         return position
 
     def get_velocity(self):
