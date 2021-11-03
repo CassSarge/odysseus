@@ -12,6 +12,8 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
 
     global cam_position, cam_orientation
 
+    rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
+
     # Construct a numpy array of image points
     imagePoints = []
     objectPoints = []
@@ -41,8 +43,6 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
             # TODO: deadreckon from last known position to allow for pose estimate of new tag when old tag not in frame
             cam_pos_global_frame = cam_position
             cam_ori_global_frame = cam_orientation
-            # im_pos_global_frame = cam_position
-            # im_ori_global_frame = cam_orientation
             print("Using cam pose:")
             print(f"{cam_position=}")
             print(f"{cam_orientation=}")
@@ -61,34 +61,25 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
             im_pos_tag_frame, im_ori_tag_frame = points_to_global_pose(temp_objectPoints, temp_imagePoints, cameraMatrix, distCoeffs)
             cam_pos_tag_frame = im_pos_tag_frame
 
+            print("Calculated using:")
+            print(f"{temp_objectPoints=}")
+            print(f"{temp_imagePoints=}")
             print("Camera Pose in Tag Frame:")
             print(f"{im_pos_tag_frame=}")
 
-            #rotm_cam_to_im = euler_zyx_to_rotm(np.array([math.pi/2,0,-math.pi/2]))
-            rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
-            #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,0,0]))
             rotm_im_to_tag = euler_zyx_to_rotm(im_ori_tag_frame)
             rotm_cam_to_tag = np.matmul(rotm_cam_to_im, rotm_im_to_tag)
-            #rotm_cam_to_tag = (np.matmul(rotm_cam_to_im, rotm_im_to_tag))
-            #cam_ori_tag_frame = rotm_to_euler_zyx(rotm_cam_to_tag)
             # The tag pose in the camera frame
-            #tag_ori_cam_frame = rotm_to_euler_zyx((euler_zyx_to_rotm(cam_ori_tag_frame)).T)
-            #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(tag_ori_cam_frame))
-            #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(cam_ori_tag_frame))
-            tag_pos_cam_frame = np.matmul(rotm_cam_to_tag.T, -cam_pos_tag_frame)
-            #tag_pos_im_frame = np.matmul(rotm_im_to_tag.T, -im_pos_tag_frame)
+            #tag_pos_cam_frame = np.matmul(rotm_cam_to_tag.T, -cam_pos_tag_frame)
+            tag_pos_cam_frame = np.matmul(rotm_cam_to_tag, -cam_pos_tag_frame)
+
+            print("Tag Pose in Camera Frame:")
+            print(f"{tag_pos_cam_frame=}")
+
             # Determine tag pose in global frame
-            #rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
             rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
-            #rotm_im_to_global = (euler_zyx_to_rotm(np.array(im_ori_global_frame)))
-            #rotm_tag_to_global = np.matmul(rotm_cam_to_tag.T, rotm_cam_to_global)
-            #rotm_tag_to_global = np.matmul(rotm_im_to_tag.T, rotm_im_to_global)
-            # tag_position = cam_pos_global_frame + np.matmul(rotm_tag_to_global,tag_pos_cam_frame)
-            # tag_orientation = rotm_to_euler_zyx(np.array(rotm_tag_to_global))
             tag_position = cam_pos_global_frame + np.matmul(rotm_cam_to_global,tag_pos_cam_frame)
-            #tag_position = im_pos_global_frame + np.matmul(rotm_im_to_global,tag_pos_im_frame)
             tag_orientation = rotm_to_euler_zyx(np.array(rotm_cam_to_global))
-            #tag_orientation = rotm_to_euler_zyx(np.array(rotm_im_to_global))
 
             # print(f"{temp_imagePoints=}")
             # print(f"{temp_objectPoints=}")
@@ -110,9 +101,24 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
         
     imagePoints = np.array(imagePoints)
     objectPoints = np.array(objectPoints)
+    print(f"{objectPoints=}")
 
-    cam_position, cam_orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
+    im_position, im_orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
 
+    #rotm_cam_to_im2 = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
+    #rotm_cam_to_im2 = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2])).T
+    #rotm_cam_to_im2 = np.matmul(rotm_cam_to_im2,rotm_cam_to_im2)
+    cam_position = im_position
+    rotm_im_to_global = euler_zyx_to_rotm(np.array(im_orientation))
+    rotm_cam_to_global = np.matmul(rotm_cam_to_im, rotm_im_to_global)
+    cam_orientation = rotm_to_euler_zyx(rotm_cam_to_global)
+    # rotm_x = euler_zyx_to_rotm(np.array([math.pi/2, 0, 0]))
+    # rotm_z = euler_zyx_to_rotm(np.array([0, 0, math.pi/2]))
+    # rotm_xz = np.matmul(rotm_x, rotm_z)
+    cam_orientation = np.array([-cam_orientation[2], cam_orientation[0], -cam_orientation[1]])
+    #cam_orientation = rotm_to_euler_zyx(np.matmul(rotm_xz, euler_zyx_to_rotm(np.array(cam_orientation))))
+    #cam_orientation = rotm_to_euler_zyx(np.matmul(rotm_cam_to_im2, euler_zyx_to_rotm(np.array(cam_orientation))))
+    print(f"{cam_orientation=}")
     #rotm_cam_to_im2 = euler_zyx_to_rotm(np.array([0,0,0]))
     #cam_orientation = rotm_to_euler_zyx(np.matmul(rotm_cam_to_im2, euler_zyx_to_rotm(np.array(cam_orientation))))
 
