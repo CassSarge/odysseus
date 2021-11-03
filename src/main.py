@@ -16,6 +16,9 @@ from camera import apriltag_detection as ap
 from pose import localisation as loc
 from pose import plot
 
+# Global variables
+global position, offset
+
 if __name__ == "__main__":
     
     # For parsing command line arguments
@@ -75,8 +78,17 @@ if __name__ == "__main__":
                 #print('orientation (RPY) (rad):')
                 #print(orientation)
 
-                # Plot points
-                plot.update_line(hl, np.asarray(position))
+                # Update global variable for position according to imu
+                imu_position = tracking_cam.get_position()
+                # Find the offset between the last known Apriltag-deduced position and the imu_position
+                offset = imu_position - position
+
+            # Otherwise, deadreckon using IMU
+            else:
+                position = tracking_cam.get_position() - offset
+
+            # Plot points
+            plot.update_line(hl, np.asarray(position))
 
             # Draw boxes
             img = ap.draw_apriltag_boxes(results, frame)
