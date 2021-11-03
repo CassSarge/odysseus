@@ -24,7 +24,7 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
         
     imagePoints = np.array(imagePoints)
     objectPoints = np.array(objectPoints)
-    # print(f"{objectPoints=}")
+    #print(f"{objectPoints=}")
                   
     position, orientation = points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs)
 
@@ -54,11 +54,13 @@ def tag_pose_to_object_points(pose, orientation, side_length):
     corner_bottom_right_global_frame = (np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame)+center).tolist()
     corner_bottom_left_global_frame = (np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame)+center).tolist()
     ls = [center.tolist(), corner_top_left_global_frame, corner_top_right_global_frame, corner_bottom_right_global_frame, corner_bottom_left_global_frame]
-    # print(f"{ls=}")
-    print(np.matmul(rotm_tag_to_global, corner_top_left_tag_frame))
-    print(np.matmul(rotm_tag_to_global, corner_top_right_tag_frame))
-    print(np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame))
-    print(np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame))
+    
+    #print(f"{ls=}")
+    #print(np.matmul(rotm_tag_to_global, corner_top_left_tag_frame))
+    #print(np.matmul(rotm_tag_to_global, corner_top_right_tag_frame))
+    #print(np.matmul(rotm_tag_to_global, corner_bottom_right_tag_frame))
+    #print(np.matmul(rotm_tag_to_global, corner_bottom_left_tag_frame))
+
     return ls
 
 

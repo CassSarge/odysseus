@@ -18,6 +18,7 @@ from camera import apriltag_detection as ap
 from pose import localisation as loc
 from pose import plot
 from imu import imu_tracking as tc
+from visualisation import camera_pose_visualizer as cpv
 
 # Global variables
 global position, offset
@@ -59,6 +60,9 @@ if __name__ == "__main__":
         (cameraMatrix, distCoeffs) = param.read_values_from_file(user_calibration_file)
         # print(f"{cameraMatrix=}, {distCoeffs=}")
 
+    # Set up camera pose visulariser
+    visualizer = cpv.CameraPoseVisualizer([-100, 3000], [-100, 3000], [-100, 3000])
+
     # If no image flag provided, open webcam and do live localisation
     if isinstance(args["image"],type(None)):
         
@@ -88,6 +92,17 @@ if __name__ == "__main__":
             if (len(centers) >= 1):
                 position, orientation = loc.results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs)
 
+                # Rotation matrix
+                R = loc.euler_zyx_to_rotm(orientation)
+                # Translation vector
+                t = position
+                temp_matrix = np.hstack((R,t))
+
+                # Extrinsic matrix 
+                extrinsic_matrix = np.vstack((temp_matrix,np.array([0,0,0,1])))
+                visualizer.extrinsic2pyramid(extrinsic_matrix.A, 'c', 400)
+                visualizer.show()
+
                 # Update global variable for position according to imu
                 imu_position = multiply_tuple(tracking_cam.receive_data(["POSITION"], turn_off=False)[0][0], 1000)
 
@@ -110,7 +125,7 @@ if __name__ == "__main__":
             # Check if 'q' was pressed
             key = cv2.waitKey(1)
             if key == ord('q'):
-                break
+                quit()
 
     # Else if an image is provided, run localisation on it     
     else:
@@ -134,7 +149,7 @@ if __name__ == "__main__":
         while True:
             key = cv2.waitKey(1)
             if key == ord('q'):
-                break
+                quit()
 
     capture.release()
     cv2.destroyAllWindows()
