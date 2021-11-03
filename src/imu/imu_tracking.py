@@ -62,9 +62,9 @@ class TrackingCam:
                         elif(d == "POSITION"):
                             position = self.get_position()
                             data_returned.append([position])
-                        elif(d == "STEREO"):
-                            stereo = self.get_stereo
-                            data_returned.append([stereo])
+                        # elif(d == "STEREO"):
+                        #     stereo = self.get_stereo()
+                        #     data_returned.append([stereo])
                     break
         except:
             print("Error receiving data")
