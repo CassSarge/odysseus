@@ -18,7 +18,6 @@ from pose import plot
 
 if __name__ == "__main__":
     
-
     # For parsing command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--image", required=False, 
@@ -45,6 +44,11 @@ if __name__ == "__main__":
 
     # If no image flag provided, open webcam and do live localisation
     if isinstance(args["image"],type(None)):
+        
+        # Start tracking camera
+        tracking_cam = TrackingCam()
+        tracking_cam.start_stream()
+        time.sleep(2)   # This sleep is required for receiving data
         
         # Open webcam for image capture
         capture = wc.open_webcam()

@@ -5,7 +5,7 @@ import math
 from imu_tracking import TrackingCam
 
 
-def plot_coordinates(tracking_camera, plotting='POSITION', run_time=60, speed =0.2):
+def plot_coordinates(tracking_camera, plotting='POSITION', run_time=60, speed=0.2):
     """
     Allows the plotting of coordinates 
 
@@ -24,13 +24,17 @@ def plot_coordinates(tracking_camera, plotting='POSITION', run_time=60, speed =0
     y = []
     z = []
     counter = math.ceil(run_time/speed)
+
     while(counter>0):
+
         position = tracking_camera.receive_data([plotting], turn_off=False)[0][0]
         time.sleep(speed)
         col = 'black'
         x.append(position[0])
-        y.append(position[2])
-        z.append(position[1])
+        y.append(position[1])
+        z.append(position[2])
+        print(f'x: {position[0]}, y: {position[1]}, z: {position[2]}')
+        
         if(len(z) > 2 and z[-1]<z[-2]):
             col = 'red' 
         ax.plot(x,y,z, c=col)
@@ -55,7 +59,6 @@ def plot_YPR(tracking_camera, run_time=60, speed =0.2):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.invert_yaxis()
-    ax.invert_xaxis()
 
     counter = math.ceil(run_time/speed)
     x = []

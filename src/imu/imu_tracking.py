@@ -2,6 +2,8 @@ import pyrealsense2 as rs
 import math
 import numpy as np
 
+import time
+
 
 class TrackingCam:
     """
@@ -88,13 +90,14 @@ class TrackingCam:
             y = self.data.rotation.x
             z = -self.data.rotation.y
 
+            yaw   =  math.atan2(2.0 * (w*z + x*y), w*w + x*x - y*y - z*z) * 180.0 / math.pi
             pitch =  -math.asin(2.0 * (x*z - w*y)) * 180.0 / math.pi
             roll  =  math.atan2(2.0 * (w*x + y*z), w*w - x*x - y*y + z*z) * 180.0 / math.pi
-            yaw   =  math.atan2(2.0 * (w*z + x*y), w*w + x*x - y*y - z*z) * 180.0 / math.pi
+
         except:
             print("Could not convert pose to Euler angles")
             return None
-        return pitch, roll, yaw    
+        return yaw, pitch, roll    
 
     def get_position(self):
         """
@@ -105,7 +108,6 @@ class TrackingCam:
         """
         position = self.data.translation.x, self.data.translation.y, self.data.translation.z
         return position
-    
 
     def get_velocity(self):
         """
@@ -126,4 +128,3 @@ class TrackingCam:
         """
         acceleration = self.data.acceleration.x, self.data.acceleration.y, self.data.acceleration.z 
         return acceleration
-
