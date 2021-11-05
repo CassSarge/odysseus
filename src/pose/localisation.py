@@ -134,8 +134,8 @@ def parse_landmark_file(filename):
     
     with open(filename) as f:
         side_len = int(f.readline().strip())
-        (x,y,z) = map(int, f.readline().strip().split(","))
-        angles = list(map(int, f.readline().strip().split(",")))
+        (x,y,z) = map(float, f.readline().strip().split(","))
+        angles = list(map(float, f.readline().strip().split(",")))
         (roll, pitch, yaw) = map(math.radians, angles)
     
     pose = (x, y, z)
