@@ -58,5 +58,5 @@ class CameraPoseVisualizer:
         self.fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), orientation='vertical', label='Frame Number')
 
     def show(self):
-        plt.title('Extrinsic Parameters')
+        #plt.title('Pose Visualisation')
         plt.show()
