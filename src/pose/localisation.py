@@ -22,91 +22,96 @@ def results_to_global_pose(boxes, centers, ids, cameraMatrix, distCoeffs):
             
         atlas_name = f"pose/atlas/{ids[tag]}.lmk"
 
-        #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
-        #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,0,0]))
 
-        # If landmark file already exists, parse it for pose data
-        if os.path.isfile(atlas_name):
-            (side_len, tag_position, tag_orientation) = parse_landmark_file(atlas_name)
+        try:
+            #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
+            #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,0,0]))
 
-        # Else, create a new landmark file and parse it for pose data
-        # else:
-        #     # Assume tag side length of 144m for all tags
-        #     # TODO: have this info stored per ID in file
-        #     print("Assuming tag side length of 144mm")
-        #     side_len = 144
+            # If landmark file already exists, parse it for pose data
+            if os.path.isfile(atlas_name):
+                (side_len, tag_position, tag_orientation) = parse_landmark_file(atlas_name)
 
-        #     # Assume camera of (0,0,0), (0,0,0) if only 1 tag detected
-        #     # TODO: allow for deadreckoning from start point to first tag detection
-        #     # TODO: deadreckon from last known position to allow for pose estimate of new tag when old tag not in frame
-        #     cam_pos_global_frame = cam_position
-        #     cam_ori_global_frame = cam_orientation
-        #     # im_pos_global_frame = cam_position
-        #     # im_ori_global_frame = cam_orientation
-        #     print("Using cam pose:")
-        #     print(f"{cam_position=}")
-        #     print(f"{cam_orientation=}")
+            # Else, create a new landmark file and parse it for pose data
+            # else:
+            #     # Assume tag side length of 144m for all tags
+            #     # TODO: have this info stored per ID in file
+            #     print("Assuming tag side length of 144mm")
+            #     side_len = 144
 
-        #     # Format image points for tag
-        #     temp_imagePoints = []
-        #     temp_imagePoints.append(centers[tag])
-        #     for corner in boxes[tag]:
-        #         temp_imagePoints.append(corner)
-        #     temp_imagePoints = np.array(temp_imagePoints)
-        #     # Determine the object points in the tag frame
-        #     temp_objectPoints = []
-        #     temp_objectPoints.extend(tag_pose_to_object_points((0.0,0.0,0.0), (0.0,0.0,0.0), side_len))
-        #     temp_objectPoints = np.array(temp_objectPoints)
-        #     # Solve for camera pose in the tag frame
-        #     im_pos_tag_frame, im_ori_tag_frame = points_to_global_pose(temp_objectPoints, temp_imagePoints, cameraMatrix, distCoeffs)
-        #     cam_pos_tag_frame = im_pos_tag_frame
+            #     # Assume camera of (0,0,0), (0,0,0) if only 1 tag detected
+            #     # TODO: allow for deadreckoning from start point to first tag detection
+            #     # TODO: deadreckon from last known position to allow for pose estimate of new tag when old tag not in frame
+            #     cam_pos_global_frame = cam_position
+            #     cam_ori_global_frame = cam_orientation
+            #     # im_pos_global_frame = cam_position
+            #     # im_ori_global_frame = cam_orientation
+            #     print("Using cam pose:")
+            #     print(f"{cam_position=}")
+            #     print(f"{cam_orientation=}")
 
-        #     print("Camera Pose in Tag Frame:")
-        #     print(f"{im_pos_tag_frame=}")
+            #     # Format image points for tag
+            #     temp_imagePoints = []
+            #     temp_imagePoints.append(centers[tag])
+            #     for corner in boxes[tag]:
+            #         temp_imagePoints.append(corner)
+            #     temp_imagePoints = np.array(temp_imagePoints)
+            #     # Determine the object points in the tag frame
+            #     temp_objectPoints = []
+            #     temp_objectPoints.extend(tag_pose_to_object_points((0.0,0.0,0.0), (0.0,0.0,0.0), side_len))
+            #     temp_objectPoints = np.array(temp_objectPoints)
+            #     # Solve for camera pose in the tag frame
+            #     im_pos_tag_frame, im_ori_tag_frame = points_to_global_pose(temp_objectPoints, temp_imagePoints, cameraMatrix, distCoeffs)
+            #     cam_pos_tag_frame = im_pos_tag_frame
 
-        #     #rotm_cam_to_im = euler_zyx_to_rotm(np.array([math.pi/2,0,-math.pi/2]))
-        #     rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
-        #     #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,0,0]))
-        #     rotm_im_to_tag = euler_zyx_to_rotm(im_ori_tag_frame)
-        #     rotm_cam_to_tag = np.matmul(rotm_cam_to_im, rotm_im_to_tag)
-        #     #rotm_cam_to_tag = (np.matmul(rotm_cam_to_im, rotm_im_to_tag))
-        #     #cam_ori_tag_frame = rotm_to_euler_zyx(rotm_cam_to_tag)
-        #     # The tag pose in the camera frame
-        #     #tag_ori_cam_frame = rotm_to_euler_zyx((euler_zyx_to_rotm(cam_ori_tag_frame)).T)
-        #     #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(tag_ori_cam_frame))
-        #     #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(cam_ori_tag_frame))
-        #     tag_pos_cam_frame = np.matmul(rotm_cam_to_tag.T, -cam_pos_tag_frame)
-        #     #tag_pos_im_frame = np.matmul(rotm_im_to_tag.T, -im_pos_tag_frame)
-        #     # Determine tag pose in global frame
-        #     #rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
-        #     rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
-        #     #rotm_im_to_global = (euler_zyx_to_rotm(np.array(im_ori_global_frame)))
-        #     #rotm_tag_to_global = np.matmul(rotm_cam_to_tag.T, rotm_cam_to_global)
-        #     #rotm_tag_to_global = np.matmul(rotm_im_to_tag.T, rotm_im_to_global)
-        #     # tag_position = cam_pos_global_frame + np.matmul(rotm_tag_to_global,tag_pos_cam_frame)
-        #     # tag_orientation = rotm_to_euler_zyx(np.array(rotm_tag_to_global))
-        #     tag_position = cam_pos_global_frame + np.matmul(rotm_cam_to_global,tag_pos_cam_frame)
-        #     #tag_position = im_pos_global_frame + np.matmul(rotm_im_to_global,tag_pos_im_frame)
-        #     tag_orientation = rotm_to_euler_zyx(np.array(rotm_cam_to_global))
-        #     #tag_orientation = rotm_to_euler_zyx(np.array(rotm_im_to_global))
+            #     print("Camera Pose in Tag Frame:")
+            #     print(f"{im_pos_tag_frame=}")
 
-        #     # print(f"{temp_imagePoints=}")
-        #     # print(f"{temp_objectPoints=}")
-        #     # print(f"{cam_pos_tag_frame=}")
-        #     # print(f"{cam_ori_tag_frame=}")
-        #     # print(f"{tag_pos_cam_frame=}")
+            #     #rotm_cam_to_im = euler_zyx_to_rotm(np.array([math.pi/2,0,-math.pi/2]))
+            #     rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,-math.pi/2,math.pi/2]))
+            #     #rotm_cam_to_im = euler_zyx_to_rotm(np.array([0,0,0]))
+            #     rotm_im_to_tag = euler_zyx_to_rotm(im_ori_tag_frame)
+            #     rotm_cam_to_tag = np.matmul(rotm_cam_to_im, rotm_im_to_tag)
+            #     #rotm_cam_to_tag = (np.matmul(rotm_cam_to_im, rotm_im_to_tag))
+            #     #cam_ori_tag_frame = rotm_to_euler_zyx(rotm_cam_to_tag)
+            #     # The tag pose in the camera frame
+            #     #tag_ori_cam_frame = rotm_to_euler_zyx((euler_zyx_to_rotm(cam_ori_tag_frame)).T)
+            #     #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(tag_ori_cam_frame))
+            #     #rotm_tag_to_cam = euler_zyx_to_rotm(np.array(cam_ori_tag_frame))
+            #     tag_pos_cam_frame = np.matmul(rotm_cam_to_tag.T, -cam_pos_tag_frame)
+            #     #tag_pos_im_frame = np.matmul(rotm_im_to_tag.T, -im_pos_tag_frame)
+            #     # Determine tag pose in global frame
+            #     #rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
+            #     rotm_cam_to_global = (euler_zyx_to_rotm(np.array(cam_ori_global_frame)))
+            #     #rotm_im_to_global = (euler_zyx_to_rotm(np.array(im_ori_global_frame)))
+            #     #rotm_tag_to_global = np.matmul(rotm_cam_to_tag.T, rotm_cam_to_global)
+            #     #rotm_tag_to_global = np.matmul(rotm_im_to_tag.T, rotm_im_to_global)
+            #     # tag_position = cam_pos_global_frame + np.matmul(rotm_tag_to_global,tag_pos_cam_frame)
+            #     # tag_orientation = rotm_to_euler_zyx(np.array(rotm_tag_to_global))
+            #     tag_position = cam_pos_global_frame + np.matmul(rotm_cam_to_global,tag_pos_cam_frame)
+            #     #tag_position = im_pos_global_frame + np.matmul(rotm_im_to_global,tag_pos_im_frame)
+            #     tag_orientation = rotm_to_euler_zyx(np.array(rotm_cam_to_global))
+            #     #tag_orientation = rotm_to_euler_zyx(np.array(rotm_im_to_global))
 
-        #     # Create new landmark file
-        #     with open(atlas_name,'w+') as f:
-        #         l1 = f"{side_len}"
-        #         l2 = f"{tag_position.item(0)},{tag_position.item(1)},{tag_position.item(2)}"
-        #         l3 = f"{math.degrees(tag_orientation[0])},{math.degrees(tag_orientation[1])},{math.degrees(tag_orientation[2])}"
-        #         f.write('{}\n{}\n{}\n'.format(l1,l2,l3))
-        #         print(f"Created file {atlas_name}")
+            #     # print(f"{temp_imagePoints=}")
+            #     # print(f"{temp_objectPoints=}")
+            #     # print(f"{cam_pos_tag_frame=}")
+            #     # print(f"{cam_ori_tag_frame=}")
+            #     # print(f"{tag_pos_cam_frame=}")
 
-        #     (side_len, tag_position, tag_orientation) = parse_landmark_file(atlas_name)
+            #     # Create new landmark file
+            #     with open(atlas_name,'w+') as f:
+            #         l1 = f"{side_len}"
+            #         l2 = f"{tag_position.item(0)},{tag_position.item(1)},{tag_position.item(2)}"
+            #         l3 = f"{math.degrees(tag_orientation[0])},{math.degrees(tag_orientation[1])},{math.degrees(tag_orientation[2])}"
+            #         f.write('{}\n{}\n{}\n'.format(l1,l2,l3))
+            #         print(f"Created file {atlas_name}")
 
-        objectPoints.extend(tag_pose_to_object_points(tag_position, tag_orientation, side_len))
+            #     (side_len, tag_position, tag_orientation) = parse_landmark_file(atlas_name)
+
+            objectPoints.extend(tag_pose_to_object_points(tag_position, tag_orientation, side_len))
+        
+        except:
+            print("unknown tag identified")
         
     imagePoints = np.array(imagePoints)
     objectPoints = np.array(objectPoints)
