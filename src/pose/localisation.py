@@ -63,7 +63,7 @@ def points_to_global_pose(objectPoints, imagePoints, cameraMatrix, distCoeffs):
         tuple(tuple(3), tuple(3)) : the corresponding position and orientation from the detections
     """
     _, rVec, tVec = cv2.solvePnP(
-        objectPoints, imagePoints, cameraMatrix, distCoeffs)
+        objectPoints, imagePoints, cameraMatrix, distCoeffs, flags=cv2.SOLVEPNP_SQPNP)
     rotm_t = cv2.Rodrigues(rVec)[0]
     rotm = np.array(rotm_t).T
     position = np.matmul(-rotm, np.array(tVec))
