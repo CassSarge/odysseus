@@ -58,7 +58,6 @@ if __name__ == "__main__":
     
     if args["calibrate"] is True:
         # Calibrate camera
-        # TODO make the 2.1 a variable based on who is using the script
         side_len = float(input("How large is the checkerboard used in the calibration photos?"))
         _, cameraMatrix, distCoeffs, _, _ = param.get_calibration_values(side_len, user_calibration_path)
         param.write_parameter_files(user_calibration_file, cameraMatrix, distCoeffs)
