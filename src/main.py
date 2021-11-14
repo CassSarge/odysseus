@@ -68,6 +68,7 @@ if __name__ == "__main__":
         # print(f"{cameraMatrix=}, {distCoeffs=}")
 
     # Set up camera pose visulariser
+    # arguments are for plot limits
     visualizer = cpv.CameraPoseVisualizer([-100, 3000], [-100, 3000], [-100, 3000])
 
     # If no image flag provided, open webcam and do live localisation
